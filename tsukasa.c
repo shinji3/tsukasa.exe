@@ -27,7 +27,7 @@ int main(int argc, char *argv[]) {
 	/* 8bit */
 	unsigned char framing_header[12];
 	unsigned char *data;
-	unsigned char bitrate_records[127] = {};
+	char bitrate_records[127] = "";
 
 	/* 16bit */
 	unsigned short data_size;
@@ -447,7 +447,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	/* dataを送信 */
-	result = send(sock, data, sizeof(unsigned char) * (data_size+4), 0);
+	result = send(sock, (char *)data, sizeof(char) * (data_size+4), 0);
 	if (result == SOCKET_ERROR) {
 		free(data);
 		data = NULL;
@@ -547,7 +547,7 @@ int main(int argc, char *argv[]) {
 		}
 		
 		/* dataを送信 */
-		result = send(sock, data, sizeof(unsigned char) * (data_size+4), 0);
+		result = send(sock, (char *)data, sizeof(char) * (data_size+4), 0);
 		if (result == SOCKET_ERROR) {
 			free(data);
 			data = NULL;
