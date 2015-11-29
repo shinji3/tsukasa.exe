@@ -282,9 +282,6 @@ int main(int argc, char *argv[]) {
 	/* LocationIdとIncarnationが0以外はエラー */
 	for (i=0;i<5;i++) {
 		if (framing_header[4+i] != 0) {
-			free(data);
-			data = NULL;
-			
 			closesocket(sock);
 			WSACleanup();
 			exit(0);
@@ -293,9 +290,6 @@ int main(int argc, char *argv[]) {
 
 	/* AFFlagsが12以外はエラー */
 	if (framing_header[9] != 12) {
-		free(data);
-		data = NULL;
-		
 		closesocket(sock);
 		WSACleanup();
 		exit(0);
@@ -304,9 +298,6 @@ int main(int argc, char *argv[]) {
 	/* PacketSizeがPacketLengthとサイズが違うとエラー */
 	for (i=0;i<2;i++) {
 		if (framing_header[10+i] != framing_header[2+i]) {
-			free(data);
-			data = NULL;
-			
 			closesocket(sock);
 			WSACleanup();
 			exit(0);
