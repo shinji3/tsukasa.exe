@@ -375,10 +375,10 @@ int main(int argc, char *argv[]) {
 					average_number_of_bytes_per_second += (unsigned long)data[data_pos+86+i] << 8 * i;
 				}
 
-				/* average_number_of_bytes_per_secondが0の場合は0xFFFFFFFFを書き込む */
+				/* average_number_of_bytes_per_secondが0の場合はaverage_number_of_bytes_per_secondに1を書き込む */
 				if (average_number_of_bytes_per_second == 0) {
 					for (i=0;i<4;i++) {
-						data[data_pos+86+i] = (0xFFFFFFFF >> 8 * i) & 0xFF;
+						data[data_pos+86+i] = (1 >> 8 * i) & 0xFF;
 					}
 				}
 			}
@@ -425,7 +425,7 @@ int main(int argc, char *argv[]) {
 			data[data_pos+27+j*6] = 0;
 			/* average_bitrateを書き込む */
 			for (i=0;i<4;i++) {
-				data[data_pos+28+i+j*6] = (0xFFFFFFFF >> 8 * i) & 0xFF;
+				data[data_pos+28+i+j*6] = (1 >> 8 * i) & 0xFF;
 			}
 		}
 		
