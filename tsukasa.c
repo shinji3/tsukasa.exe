@@ -35,6 +35,7 @@ int main(int argc, char *argv[]) {
 	
 	/* 32bit */
 	unsigned long number_of_header_objects = 0;
+	unsigned long average_number_of_bytes_per_second = 0;
 	
 	/* 64bit */
 	unsigned long long header_object_size = 0;
@@ -368,6 +369,18 @@ int main(int argc, char *argv[]) {
 			if (memcmp(data+data_pos+24, asf_audio_media, sizeof(unsigned char) * 16) == 0) {
 				/* error_correction_typeをasf_no_error_correctionに設定 */
 				memcpy(data+data_pos+40, asf_no_error_correction, sizeof(unsigned char) * 16);
+
+				/* average_number_of_bytes_per_secondを取得 */
+				for (i=0;i<4;i++) {
+					average_number_of_bytes_per_second += (unsigned long)data[data_pos+86+i] << 8 * i;
+				}
+
+				/* average_number_of_bytes_per_secondが0の場合は0xFFFFFFFFを書き込む */
+				if (average_number_of_bytes_per_second == 0) {
+					for (i=0;i<4;i++) {
+						data[data_pos+86+i] = (0xFFFFFFFF >> 8 * i) & 0xFF;
+					}
+				}
 			}
 			
 			/* bitrate_recordsにstream_numberを追加 */
@@ -412,7 +425,7 @@ int main(int argc, char *argv[]) {
 			data[data_pos+27+j*6] = 0;
 			/* average_bitrateを書き込む */
 			for (i=0;i<4;i++) {
-				data[data_pos+28+i+j*6] = (1 >> 8 * i) & 0xFF;
+				data[data_pos+28+i+j*6] = (0xFFFFFFFF >> 8 * i) & 0xFF;
 			}
 		}
 		
