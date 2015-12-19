@@ -35,7 +35,7 @@ int main(int argc, char *argv[]) {
 	
 	/* 32bit */
 	unsigned long number_of_header_objects = 0;
-	unsigned long average_number_of_bytes_per_second = 0;
+	unsigned long average_number_of_bytes_per_second;
 	
 	/* 64bit */
 	unsigned long long header_object_size = 0;
@@ -371,6 +371,7 @@ int main(int argc, char *argv[]) {
 				memcpy(data+data_pos+40, asf_no_error_correction, sizeof(unsigned char) * 16);
 
 				/* average_number_of_bytes_per_secondを取得 */
+				average_number_of_bytes_per_second = 0;
 				for (i=0;i<4;i++) {
 					average_number_of_bytes_per_second += (unsigned long)data[data_pos+86+i] << 8 * i;
 				}
