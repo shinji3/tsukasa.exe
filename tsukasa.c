@@ -426,7 +426,7 @@ int main(int argc, char *argv[]) {
 			data[data_pos+27+j*6] = 0;
 			/* average_bitrateを書き込む */
 			for (i=0;i<4;i++) {
-				data[data_pos+28+i+j*6] = (1 >> 8 * i) & 0xFF;
+				data[data_pos+28+i+j*6] = (1000 >> 8 * i) & 0xFF;
 			}
 		}
 		
