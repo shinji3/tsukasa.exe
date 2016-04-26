@@ -442,6 +442,9 @@ int main(int argc, char *argv[]) {
 	/* pushstartを送信 */
 	result = send(sock, pushstart, strlen(pushstart), 0);
 	if (result == SOCKET_ERROR) {
+		free(data);
+		data = NULL;
+		
 		closesocket(sock);
 		WSACleanup();
 		exit(0);
@@ -462,7 +465,7 @@ int main(int argc, char *argv[]) {
 		exit(0);
 	}
 
-	/* PacketIDが$Eだったら終了 */
+	/* old_data_sizeにdata_sizeの値を入れる */
 	old_data_size = data_size;
 
 	/* $D */
