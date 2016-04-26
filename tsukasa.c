@@ -246,18 +246,6 @@ int main(int argc, char *argv[]) {
 	url_path = NULL;
 	extra_info = NULL;
 	
-	/* pushstartを送信 */
-	result = send(sock, pushstart, strlen(pushstart), 0);
-	if (result == SOCKET_ERROR) {
-		closesocket(sock);
-		WSACleanup();
-		exit(0);
-	}
-
-	/* pushstartのメモリを開放 */
-	free(pushstart);
-	pushstart = NULL;
-
 	/* STDINをバイナリで読み込む */
 	setmode(fileno(stdin), O_BINARY);
 
@@ -450,6 +438,18 @@ int main(int argc, char *argv[]) {
 	for (i=0;i<2;i++) {
 		data[2+i] = (data_size >> 8 * i) & 0xFF;
 	}
+
+	/* pushstartを送信 */
+	result = send(sock, pushstart, strlen(pushstart), 0);
+	if (result == SOCKET_ERROR) {
+		closesocket(sock);
+		WSACleanup();
+		exit(0);
+	}
+
+	/* pushstartのメモリを開放 */
+	free(pushstart);
+	pushstart = NULL;
 
 	/* dataを送信 */
 	result = send(sock, (char *)data, sizeof(char) * (data_size+4), 0);
