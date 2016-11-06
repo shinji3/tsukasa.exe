@@ -35,6 +35,7 @@ int main(int argc, char *argv[]) {
 	
 	/* 32bit */
 	unsigned long number_of_header_objects = 0;
+	unsigned long maximum_bitrate = 0;
 	unsigned long average_number_of_bytes_per_second;
 	
 	/* 64bit */
@@ -349,6 +350,18 @@ int main(int argc, char *argv[]) {
 		if (memcmp(data+data_pos, asf_file_properties_object, sizeof(unsigned char) * 16) == 0) {
 			/* file_idの末端を0xFFにする */
 			data[data_pos+39] = 255;
+			
+			/* maximum_bitrateを取得 */
+			for (i=0;i<4;i++) {
+				maximum_bitrate += (unsigned long)data[data_pos+100+i] << 8 * i;
+			}
+			
+			/* maximum_bitrateが4294967295の場合はmaximum_bitrateに1000を書き込む */
+			if (maximum_bitrate == 4294967295) {
+				for (i=0;i<4;i++) {
+					data[data_pos+100+i] = (1000 >> 8 * i) & 0xFF;
+				}
+			}
 		}
 
 		/* asf_stream_properties_objectかどうか */
