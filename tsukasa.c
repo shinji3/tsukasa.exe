@@ -12,6 +12,7 @@ int main(int argc, char *argv[]) {
 	int i, j;
 	int data_pos;
 	int result;
+	int audio_stream_number = 0;
 
 	/* Boolean */
 	int asf_stream_bitrate_properties_object_add = 1;
@@ -36,7 +37,7 @@ int main(int argc, char *argv[]) {
 	/* 32bit */
 	unsigned long number_of_header_objects = 0;
 	unsigned long maximum_bitrate = 0;
-	unsigned long average_number_of_bytes_per_second;
+	unsigned long average_number_of_bytes_per_second = 0;
 	
 	/* 64bit */
 	unsigned long long header_object_size = 0;
@@ -349,17 +350,18 @@ int main(int argc, char *argv[]) {
 		/* asf_file_properties_objectかどうか */
 		if (memcmp(data+data_pos, asf_file_properties_object, sizeof(unsigned char) * 16) == 0) {
 			/* file_idの末端を0xFFにする */
-			data[data_pos+39] = 255;
+			data[data_pos+39] = 0xFF;
 			
 			/* maximum_bitrateを取得 */
 			for (i=0;i<4;i++) {
 				maximum_bitrate += (unsigned long)data[data_pos+100+i] << 8 * i;
 			}
 			
-			/* maximum_bitrateが4294967295の場合はmaximum_bitrateに1000を書き込む */
-			if (maximum_bitrate == 4294967295) {
+			/* maximum_bitrateが0xFFFFFFFFの場合はmaximum_bitrateに128000を書き込む */
+			if (maximum_bitrate == 0xFFFFFFFF) {
+				maximum_bitrate = 128000;
 				for (i=0;i<4;i++) {
-					data[data_pos+100+i] = (1000 >> 8 * i) & 0xFF;
+					data[data_pos+100+i] = (maximum_bitrate >> 8 * i) & 0xFF;
 				}
 			}
 		}
@@ -379,10 +381,13 @@ int main(int argc, char *argv[]) {
 
 				/* average_number_of_bytes_per_secondが0の場合はaverage_number_of_bytes_per_secondに16000を書き込む※MP3のVBR対応のために必要 */
 				if (average_number_of_bytes_per_second == 0) {
+					average_number_of_bytes_per_second = 16000;
 					for (i=0;i<4;i++) {
-						data[data_pos+86+i] = (16000 >> 8 * i) & 0xFF;
+						data[data_pos+86+i] = (average_number_of_bytes_per_second >> 8 * i) & 0xFF;
 					}
 				}
+				
+				audio_stream_number = data[data_pos+72];
 			}
 			
 			/* bitrate_recordsにstream_numberを追加 */
@@ -395,7 +400,7 @@ int main(int argc, char *argv[]) {
 
 	/* asf_data_object */
 	/* file_idの末端を0xFFにする※これをしないとKagaminにPush出来ない */
-	data[data_pos+39] = 255;
+	data[data_pos+39] = 0xFF;
 
 	/* asf_stream_bitrate_properties_objectが無い場合は作成 */
 	if (asf_stream_bitrate_properties_object_add) {
@@ -426,8 +431,14 @@ int main(int argc, char *argv[]) {
 			/* reservedを書き込む */
 			data[data_pos+27+j*6] = 0;
 			/* average_bitrateを書き込む */
-			for (i=0;i<4;i++) {
-				data[data_pos+28+i+j*6] = (1000 >> 8 * i) & 0xFF;
+			if (bitrate_records[j] == audio_stream_number) {
+				for (i=0;i<4;i++) {
+					data[data_pos+28+i+j*6] = ((average_number_of_bytes_per_second * 8) >> 8 * i) & 0xFF;
+				}
+			} else {
+				for (i=0;i<4;i++) {
+					data[data_pos+28+i+j*6] = ((maximum_bitrate - average_number_of_bytes_per_second * 8) >> 8 * i) & 0xFF;
+				}
 			}
 		}
 		
