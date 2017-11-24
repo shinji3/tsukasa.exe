@@ -1,11 +1,7 @@
 ﻿#include <stdio.h>
-#include <stdlib.h>
 #include <fcntl.h>
 #include <io.h>
-#include <string.h>
-#include <winsock2.h>
 #include <ws2tcpip.h>
-#include <ctype.h>
 #include <wininet.h>
 
 int main(int argc, char *argv[]) {
