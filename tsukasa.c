@@ -1,4 +1,4 @@
-#include <stdio.h>
+﻿#include <stdio.h>
 #include <stdlib.h>
 #include <fcntl.h>
 #include <io.h>
@@ -9,7 +9,8 @@
 #include <wininet.h>
 
 int main(int argc, char *argv[]) {
-	int i, j;
+    int i;
+    unsigned int j;
 	int data_pos;
 	int result;
 	int audio_stream_number = 0;
@@ -96,7 +97,7 @@ int main(int argc, char *argv[]) {
 	}
 	
 	/* urlのサイズを取得 +1は\0 */
-	result = strlen(argv[1]) + 1;
+	result = (int)strlen(argv[1]) + 1;
 
 	scheme     = (char*)malloc(sizeof(char) * result);
 	host_name  = (char*)malloc(sizeof(char) * result);
@@ -129,7 +130,7 @@ int main(int argc, char *argv[]) {
 	uc.dwExtraInfoLength = sizeof(char) * result;
 	
 	/* URLを解析 */
-	InternetCrackUrl(argv[1], strlen(argv[1]), 0, &uc);
+	InternetCrackUrl(argv[1], (DWORD)strlen(argv[1]), 0, &uc);
 	
 	/* URLがhttp以外の場合は終了 */
 	if (uc.nScheme != INTERNET_SCHEME_HTTP) {
@@ -177,7 +178,7 @@ int main(int argc, char *argv[]) {
 	sprintf(pushsetup, pushsetup_tpl, uc.lpszUrlPath, uc.lpszExtraInfo, uc.lpszHostName, uc.nPort);
 
 	/* pushsetupを送信 */
-	result = send(sock, pushsetup, strlen(pushsetup), 0);
+	result = send(sock, pushsetup, (int)strlen(pushsetup), 0);
 	if (result == SOCKET_ERROR) {
 		closesocket(sock);
 		WSACleanup();
@@ -254,7 +255,7 @@ int main(int argc, char *argv[]) {
 	/* $H */
 	
 	/* framing_headerをSTDINから読み込む */
-	result = fread(framing_header, sizeof(unsigned char), 12, stdin);
+	result = (int)fread(framing_header, sizeof(unsigned char), 12, stdin);
 	if (result < 12) {
 		closesocket(sock);
 		WSACleanup();
@@ -311,7 +312,7 @@ int main(int argc, char *argv[]) {
 	memcpy(data, framing_header, sizeof(unsigned char) * 2);
 
 	/* STDINからデータを読み込む */
-	result = fread(data+4, sizeof(unsigned char), data_size, stdin);
+	result = (int)fread(data+4, sizeof(unsigned char), data_size, stdin);
 	if (result < data_size) {
 		free(data);
 		data = NULL;
@@ -395,7 +396,7 @@ int main(int argc, char *argv[]) {
 		}
 
 		/* data_posにobject_sizeを加算 */
-		data_pos += object_size;
+		data_pos += (int)object_size;
 	}
 
 	/* asf_data_object */
@@ -445,7 +446,7 @@ int main(int argc, char *argv[]) {
 		/* 各種サイズを更新  */
 		number_of_header_objects +=1;
 		header_object_size += object_size;
-		data_size += object_size;
+		data_size += (unsigned short)object_size;
 		
 		/* 新しいnumber_of_header_objectsを書き込む */
 		for (i=0;i<4;i++) {
@@ -464,7 +465,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	/* pushstartを送信 */
-	result = send(sock, pushstart, strlen(pushstart), 0);
+	result = send(sock, pushstart, (int)strlen(pushstart), 0);
 	if (result == SOCKET_ERROR) {
 		free(data);
 		data = NULL;
@@ -496,7 +497,7 @@ int main(int argc, char *argv[]) {
 
 	while (1) {
 		/* framing_headerをSTDINから読み込む */
-		result = fread(framing_header, sizeof(unsigned char), 12, stdin);
+		result = (int)fread(framing_header, sizeof(unsigned char), 12, stdin);
 		if (result < 12) {
 			free(data);
 			data = NULL;
@@ -568,7 +569,7 @@ int main(int argc, char *argv[]) {
 		}
 
 		/* STDINからデータを読み込む */
-		result = fread(data+4, sizeof(unsigned char), data_size, stdin);
+		result = (int)fread(data+4, sizeof(unsigned char), data_size, stdin);
 		if (result < data_size) {
 			free(data);
 			data = NULL;
