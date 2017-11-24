@@ -81,8 +81,6 @@ int main(int argc, char *argv[]) {
 	char push_id_begin[] = {'p', 'u', 's', 'h', '-', 'i', 'd', '='};
 	char push_id_buf[11] = "";
 	
-	LPHOSTENT hostent;
-	
 	URL_COMPONENTS uc;
 	
 	char *scheme;
@@ -155,13 +153,25 @@ int main(int argc, char *argv[]) {
 		exit(0);
 	}
 
-	/* hostnameを取得 */
-	hostent = gethostbyname(uc.lpszHostName);
+    /* hostnameを取得 */
+    unsigned int ip = 0;
+    struct addrinfo hints, *res;
+
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_socktype = SOCK_STREAM;
+    hints.ai_family = AF_INET;
+
+    if (getaddrinfo(uc.lpszHostName, NULL, &hints, &res) == 0)
+    {
+        struct in_addr inAddr = ((struct sockaddr_in *)res->ai_addr)->sin_addr;
+        ip = ntohl(inAddr.s_addr);
+        freeaddrinfo(res);
+    }
 
 	/* 接続先指定用構造体の準備 */
 	server.sin_family = AF_INET;
 	server.sin_port = htons(uc.nPort);
-	server.sin_addr.S_un.S_addr = **(unsigned int **)(hostent->h_addr_list);
+	server.sin_addr.s_addr = ip;
 
 	/* サーバに接続 */
 	result = connect(sock, (SOCKADDR*)&server, sizeof(server));
@@ -175,7 +185,7 @@ int main(int argc, char *argv[]) {
 	pushsetup = (char*)malloc(sizeof(char) * (strlen(pushsetup_tpl) + strlen(uc.lpszUrlPath) + strlen(uc.lpszExtraInfo) + strlen(uc.lpszHostName) + 6));
 
 	/* pushsetupを生成 */
-	sprintf(pushsetup, pushsetup_tpl, uc.lpszUrlPath, uc.lpszExtraInfo, uc.lpszHostName, uc.nPort);
+	snprintf(pushsetup, (sizeof(char) * (strlen(pushsetup_tpl) + strlen(uc.lpszUrlPath) + strlen(uc.lpszExtraInfo) + strlen(uc.lpszHostName) + 6)), pushsetup_tpl, uc.lpszUrlPath, uc.lpszExtraInfo, uc.lpszHostName, uc.nPort);
 
 	/* pushsetupを送信 */
 	result = send(sock, pushsetup, (int)strlen(pushsetup), 0);
@@ -233,7 +243,7 @@ int main(int argc, char *argv[]) {
 	pushstart = (char*)malloc(sizeof(char) * (strlen(pushstart_tpl) + strlen(uc.lpszUrlPath) + strlen(uc.lpszExtraInfo) + strlen(uc.lpszHostName) + strlen(push_id_buf) + 6));
 
 	/* pushstartを生成 */
-	sprintf(pushstart, pushstart_tpl, uc.lpszUrlPath, uc.lpszExtraInfo, uc.lpszHostName, uc.nPort, push_id_buf);
+	snprintf(pushstart, (sizeof(char) * (strlen(pushstart_tpl) + strlen(uc.lpszUrlPath) + strlen(uc.lpszExtraInfo) + strlen(uc.lpszHostName) + strlen(push_id_buf) + 6)), pushstart_tpl, uc.lpszUrlPath, uc.lpszExtraInfo, uc.lpszHostName, uc.nPort, push_id_buf);
 	
 	free(scheme);
 	free(host_name);
@@ -250,7 +260,7 @@ int main(int argc, char *argv[]) {
 	extra_info = NULL;
 	
 	/* STDINをバイナリで読み込む */
-	setmode(fileno(stdin), O_BINARY);
+	_setmode(_fileno(stdin), O_BINARY);
 
 	/* $H */
 	
