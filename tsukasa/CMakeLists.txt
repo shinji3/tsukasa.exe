@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.9)
 
-include_directories(tsukasa)
-link_directories(tsukasa)
+include_directories(.)
+link_directories(.)
 
 add_executable(tsukasa tsukasa.cpp stdafx.cpp)
 
