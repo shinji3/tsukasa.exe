@@ -37,7 +37,7 @@ int main(int argc, char *argv[])
     unsigned long long header_object_size = 0;
     unsigned long long object_size;
 
-    _setmode(_fileno(stdin), _O_BINARY);
+    freopen_s(NULL, NULL, "rb", stdin);
 
     if (argc == 1)
     {

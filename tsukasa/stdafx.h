@@ -5,10 +5,9 @@
 
 #pragma once
 
+#ifdef _WIN32
 #include "targetver.h"
-
-#include <stdio.h>
-#include <tchar.h>
+#endif
 
 
 
@@ -18,8 +17,6 @@
 #pragma comment(lib, "Ws2_32.lib")
 #pragma comment(lib, "Iphlpapi.lib")
 
-#include <io.h>
-#include <fcntl.h>
 #include <iostream>
 #include "Poco/URI.h"
 #include "Poco/Net/HTTPRequest.h"
