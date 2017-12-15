@@ -6,17 +6,22 @@
 #pragma once
 
 #ifdef _WIN32
+
 #include "targetver.h"
+
+#include <io.h>
+#include <fcntl.h>
+
+#pragma comment(lib, "Ws2_32.lib")
+#pragma comment(lib, "Iphlpapi.lib")
+
+#define POCO_STATIC
+
 #endif
 
 
 
 // TODO: プログラムに必要な追加ヘッダーをここで参照してください
-#define POCO_STATIC
-
-#pragma comment(lib, "Ws2_32.lib")
-#pragma comment(lib, "Iphlpapi.lib")
-
 #include <iostream>
 #include "Poco/URI.h"
 #include "Poco/Net/HTTPRequest.h"

@@ -6,6 +6,11 @@
 
 int main(int argc, char *argv[])
 {
+
+#ifdef _WIN32
+    _setmode(_fileno(stdin), _O_BINARY);
+#endif
+
     int i;
     unsigned int j;
     int data_pos;
@@ -36,8 +41,6 @@ int main(int argc, char *argv[])
     /* 64bit */
     unsigned long long header_object_size = 0;
     unsigned long long object_size;
-
-    freopen_s(NULL, NULL, "rb", stdin);
 
     if (argc == 1)
     {
