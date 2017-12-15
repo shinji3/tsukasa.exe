@@ -22,6 +22,7 @@
 
 
 // TODO: プログラムに必要な追加ヘッダーをここで参照してください
+#include <cstdlib>
 #include <iostream>
 #include "Poco/URI.h"
 #include "Poco/Net/HTTPRequest.h"
