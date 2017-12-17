@@ -11,8 +11,6 @@ int main(int argc, char *argv[])
     _setmode(_fileno(stdin), _O_BINARY);
 #endif
 
-    int i;
-    unsigned int j;
     int data_pos;
     int audio_stream_number = 0;
 
@@ -63,7 +61,7 @@ int main(int argc, char *argv[])
     /* MMS Data Packetのエラーチェック */
 
     /* LocationIdとIncarnationが0以外はエラー */
-    for (i = 0; i < 5; i++)
+    for (int i = 0; i < 5; i++)
     {
         if (framing_header[4 + i] != 0)
         {
@@ -78,7 +76,7 @@ int main(int argc, char *argv[])
     }
 
     /* PacketSizeがPacketLengthとサイズが違うとエラー */
-    for (i = 0; i < 2; i++) {
+    for (int i = 0; i < 2; i++) {
         if (framing_header[10 + i] != framing_header[2 + i])
         {
             exit(EXIT_FAILURE);
@@ -87,7 +85,7 @@ int main(int argc, char *argv[])
 
     /* data_sizeを取得、8バイトのMMS Data Packetをdata_sizeから引く */
     data_size = 0;
-    for (i = 0; i < 2; i++)
+    for (int i = 0; i < 2; i++)
     {
         data_size += (unsigned short)framing_header[2 + i] << 8 * i;
     }
@@ -107,13 +105,13 @@ int main(int argc, char *argv[])
     }
 
     /* header_object_sizeを取得 */
-    for (i = 0; i < 8; i++)
+    for (int i = 0; i < 8; i++)
     {
         header_object_size += (unsigned long long)data[20 + i] << 8 * i;
     }
 
     /* number_of_header_objectsを取得 */
-    for (i = 0; i < 4; i++)
+    for (int i = 0; i < 4; i++)
     {
         number_of_header_objects += (unsigned long)data[28 + i] << 8 * i;
     }
@@ -121,11 +119,11 @@ int main(int argc, char *argv[])
     /* data_posをasf_header_objectの終端に設定 */
     data_pos = 34;
 
-    for (j = 0; j < number_of_header_objects; j++)
+    for (unsigned int j = 0; j < number_of_header_objects; j++)
     {
         /* object_sizeを取得 */
         object_size = 0;
-        for (i = 0; i < 8; i++)
+        for (int i = 0; i < 8; i++)
         {
             object_size += (unsigned long long)data[data_pos + 16 + i] << 8 * i;
         }
@@ -137,7 +135,7 @@ int main(int argc, char *argv[])
             data[data_pos + 39] = 0xFF;
 
             /* maximum_bitrateを取得 */
-            for (i = 0; i < 4; i++)
+            for (int i = 0; i < 4; i++)
             {
                 maximum_bitrate += (unsigned long)data[data_pos + 100 + i] << 8 * i;
             }
@@ -146,7 +144,7 @@ int main(int argc, char *argv[])
             if (maximum_bitrate == 0xFFFFFFFF)
             {
                 maximum_bitrate = 128000;
-                for (i = 0; i < 4; i++)
+                for (int i = 0; i < 4; i++)
                 {
                     data[data_pos + 100 + i] = (maximum_bitrate >> 8 * i) & 0xFF;
                 }
@@ -164,7 +162,7 @@ int main(int argc, char *argv[])
 
                 /* average_number_of_bytes_per_secondを取得 */
                 average_number_of_bytes_per_second = 0;
-                for (i = 0; i < 4; i++)
+                for (int i = 0; i < 4; i++)
                 {
                     average_number_of_bytes_per_second += (unsigned long)data[data_pos + 86 + i] << 8 * i;
                 }
@@ -173,7 +171,7 @@ int main(int argc, char *argv[])
                 if (average_number_of_bytes_per_second == 0)
                 {
                     average_number_of_bytes_per_second = 16000;
-                    for (i = 0; i < 4; i++)
+                    for (int i = 0; i < 4; i++)
                     {
                         data[data_pos + 86 + i] = (average_number_of_bytes_per_second >> 8 * i) & 0xFF;
                     }
@@ -201,25 +199,25 @@ int main(int argc, char *argv[])
     std::memmove(data + data_pos + object_size, data + data_pos, data_size + 4 - data_pos);
 
     /* object_idを書き込む */
-    for (i = 0; i < 16; i++)
+    for (int i = 0; i < 16; i++)
     {
         data[data_pos + i] = asf_stream_bitrate_properties_object[i];
     }
 
     /* object_sizeを書き込む */
-    for (i = 0; i < 8; i++)
+    for (int i = 0; i < 8; i++)
     {
         data[data_pos + 16 + i] = (object_size >> 8 * i) & 0xFF;
     }
 
     /* bitrate_records_countを書き込む */
-    for (i = 0; i < 2; i++)
+    for (int i = 0; i < 2; i++)
     {
         data[data_pos + 24 + i] = (std::strlen(bitrate_records) >> 8 * i) & 0xFF;
     }
 
     /* bitrate_recordsを書き込む */
-    for (j = 0; j < strlen(bitrate_records); j++)
+    for (unsigned int j = 0; j < strlen(bitrate_records); j++)
     {
         /* stream_numberを書き込む */
         data[data_pos + 26 + j * 6] = bitrate_records[j];
@@ -228,14 +226,14 @@ int main(int argc, char *argv[])
         /* average_bitrateを書き込む */
         if (bitrate_records[j] == audio_stream_number)
         {
-            for (i = 0; i < 4; i++)
+            for (int i = 0; i < 4; i++)
             {
                 data[data_pos + 28 + i + j * 6] = ((average_number_of_bytes_per_second * 8) >> 8 * i) & 0xFF;
             }
         }
         else
         {
-            for (i = 0; i < 4; i++)
+            for (int i = 0; i < 4; i++)
             {
                 data[data_pos + 28 + i + j * 6] = ((maximum_bitrate - average_number_of_bytes_per_second * 8) >> 8 * i) & 0xFF;
             }
@@ -248,19 +246,19 @@ int main(int argc, char *argv[])
     data_size += (unsigned short)object_size;
 
     /* 新しいnumber_of_header_objectsを書き込む */
-    for (i = 0; i < 4; i++)
+    for (int i = 0; i < 4; i++)
     {
         data[28 + i] = (number_of_header_objects >> 8 * i) & 0xFF;
     }
 
     /* 新しいheader_object_sizeを書き込む */
-    for (i = 0; i < 8; i++)
+    for (int i = 0; i < 8; i++)
     {
         data[20 + i] = (header_object_size >> 8 * i) & 0xFF;
     }
 
     /* 新しいdata_sizeを書き込む */
-    for (i = 0; i < 2; i++)
+    for (int i = 0; i < 2; i++)
     {
         data[2 + i] = (data_size >> 8 * i) & 0xFF;
     }
@@ -310,7 +308,7 @@ int main(int argc, char *argv[])
         /* MMS Data Packetのエラーチェック */
 
         /* IncarnationとAFFlagsが0以外はエラー */
-        for (i = 0; i < 2; i++)
+        for (int i = 0; i < 2; i++)
         {
             if (framing_header[8 + i] != 0)
             {
@@ -319,7 +317,7 @@ int main(int argc, char *argv[])
         }
 
         /* PacketSizeがPacketLengthとサイズが違うとエラー */
-        for (i = 0; i < 2; i++)
+        for (int i = 0; i < 2; i++)
         {
             if (framing_header[10 + i] != framing_header[2 + i])
             {
@@ -329,7 +327,7 @@ int main(int argc, char *argv[])
 
         /* data_sizeを取得、8バイトのMMS Data Packetをdata_sizeから引く */
         data_size = 0;
-        for (i = 0; i < 2; i++)
+        for (int i = 0; i < 2; i++)
         {
             data_size += (unsigned short)framing_header[2 + i] << 8 * i;
         }
@@ -349,7 +347,7 @@ int main(int argc, char *argv[])
         std::memcpy(data, framing_header, 2);
 
         /* 新しいdata_sizeを書き込む */
-        for (i = 0; i < 2; i++)
+        for (int i = 0; i < 2; i++)
         {
             data[2 + i] = (data_size >> 8 * i) & 0xFF;
         }
