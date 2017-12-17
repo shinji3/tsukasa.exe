@@ -47,23 +47,6 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    Poco::URI uri(argv[1]);
-
-    Poco::Net::HTTPClientSession client(uri.getHost(), uri.getPort());
-    Poco::Net::HTTPRequest request(Poco::Net::HTTPRequest::HTTP_POST, uri.getPathAndQuery(), Poco::Net::HTTPMessage::HTTP_1_1);
-    Poco::Net::HTTPResponse response;
-
-    request.setContentType("application/x-wms-pushsetup");
-    request.set("Cookie", "push-id=0");
-
-    client.sendRequest(request);
-    client.receiveResponse(response);
-
-    std::string cookie = response.get("Set-Cookie");
-
-    request.setContentType("application/x-wms-pushstart");
-    request.set("Cookie", cookie);
-
     /* framing_headerをSTDINから読み込む */
     std::cin.read((char *)framing_header, 12);
     if (std::cin.gcount() < 12)
@@ -281,6 +264,23 @@ int main(int argc, char *argv[])
     {
         data[2 + i] = (data_size >> 8 * i) & 0xFF;
     }
+
+    Poco::URI uri(argv[1]);
+
+    Poco::Net::HTTPClientSession client(uri.getHost(), uri.getPort());
+    Poco::Net::HTTPRequest request(Poco::Net::HTTPRequest::HTTP_POST, uri.getPathAndQuery(), Poco::Net::HTTPMessage::HTTP_1_1);
+    Poco::Net::HTTPResponse response;
+
+    request.setContentType("application/x-wms-pushsetup");
+    request.set("Cookie", "push-id=0");
+
+    client.sendRequest(request);
+    client.receiveResponse(response);
+
+    std::string cookie = response.get("Set-Cookie");
+
+    request.setContentType("application/x-wms-pushstart");
+    request.set("Cookie", cookie);
 
     /* pushstartを送信 */
     std::ostream &os = client.sendRequest(request);
