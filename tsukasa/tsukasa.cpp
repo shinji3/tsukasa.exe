@@ -271,6 +271,7 @@ int main(int argc, char *argv[])
 
     request.setContentType("application/x-wms-pushsetup");
     request.set("Cookie", "push-id=0");
+    request.set("User-Agent", "WMEncoder/12.0.10011.16384");
 
     client.sendRequest(request);
     client.receiveResponse(response);
