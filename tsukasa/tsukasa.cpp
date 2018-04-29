@@ -266,7 +266,11 @@ int main(int argc, char *argv[])
     Poco::URI uri(argv[1]);
 
     Poco::Net::HTTPClientSession client(uri.getHost(), uri.getPort());
-    Poco::Net::HTTPRequest request(Poco::Net::HTTPRequest::HTTP_POST, uri.getPathAndQuery(), Poco::Net::HTTPMessage::HTTP_1_1);
+
+    std::string path(uri.getPathAndQuery());
+    if (path.empty()) path = "/";
+
+    Poco::Net::HTTPRequest request(Poco::Net::HTTPRequest::HTTP_POST, path, Poco::Net::HTTPMessage::HTTP_1_1);
     Poco::Net::HTTPResponse response;
 
     request.setContentType("application/x-wms-pushsetup");
